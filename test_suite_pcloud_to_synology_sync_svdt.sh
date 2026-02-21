@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # =============================================================================
 # test_suite_pcloud_to_synology_sync_svdt.sh
 # Test suite for pcloud_to_synology_sync_svdt.sh
@@ -42,7 +42,7 @@
 #   Version bump in main script          Update MAIN_SCRIPT_VERSION below
 #
 # VERSION HISTORY:
-#   1.0.1 — updated MAIN_SCRIPT_VERSION to 1.9; corrected section/test count in header
+#   1.0.1 — updated MAIN_SCRIPT_VERSION to 1.9
 #   1.0.0 — initial release (12 sections, 61 tests)
 # =============================================================================
 

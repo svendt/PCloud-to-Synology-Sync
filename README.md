@@ -387,6 +387,58 @@ rm /var/lib/pcloud-backup/stats_history.txt
 
 ---
 
+## ⏰ Choosing the Right Schedule
+
+The time of day you schedule your backup has a significant impact on performance and health scores. pCloud API response times vary considerably depending on server load and maintenance windows.
+
+### Real-world observation
+
+The following data was recorded on a DS1517+ in the EU, comparing scheduled night runs vs. manual daytime runs:
+
+| Time | API latency | Health score |
+|---|---|---|
+| 04:00 (scheduled) | 41–58s | 60/100 |
+| 17:00 (manual) | 1s | 100/100 |
+
+A 40–58× difference in API response time — purely due to time of day. The backups themselves completed successfully either way, but the slow API probe triggered the >30s latency penalty (−40 health points) on every night run.
+
+### Why this happens
+
+pCloud likely runs maintenance jobs or experiences higher server load during overnight hours in their datacentre region. The API connectivity probe at the start of each run bears the full brunt of this — which is then reflected in your health score.
+
+### Recommendation
+
+**Test a few different times** and watch your health score over a week. Based on EU experience:
+
+| Time slot | Typical result |
+|---|---|
+| 02:00–05:00 | High API latency, health ~60 |
+| 06:00–09:00 | Mixed — worth testing |
+| 10:00–16:00 | Low API latency, health ~100 |
+
+A daytime run (e.g. **10:00 or 14:00**) is likely to give you consistently clean runs. The script uses conservative transfer settings (`--transfers=2`, `--tpslimit=5`) so NAS impact during working hours is minimal.
+
+> **Tip:** After changing your schedule, check the statistics table at the end of the next few runs. The `API(s)` column tells you immediately whether the new time slot is better.
+
+---
+
+## 🧪 Test Suite
+
+A self-contained test suite is included to validate the script's logic without requiring a real pCloud remote, NAS volume, or rclone installation.
+
+```bash
+chmod +x test_suite_pcloud_to_synology_sync_svdt.sh
+./test_suite_pcloud_to_synology_sync_svdt.sh
+```
+
+The suite uses a temporary directory tree to simulate all state, and cleans up after itself on exit. It covers 12 sections and 61 tests, including CLI flags, structured log format, lockfile atomics, stale lock repair, disk space checks, log pruning, stats history trimming, health score calculation (all deduction branches and clamping), API-lag detection, persistent API-lag comparison, stats entry parsing, and artefact filename patterns.
+
+**Note on platform compatibility:** The test suite uses `head -n -N` (GNU coreutils). On macOS, install GNU coreutils via Homebrew (`brew install coreutils`) if any pruning tests fail.
+
+Run the test suite after any change to the main script. The `MAINTENANCE NOTES` table at the top of the test file lists exactly which test sections to update for each type of change.
+
+---
+
 ## 🤝 Contributing
 
 Pull requests and improvements are welcome. Please maintain:
