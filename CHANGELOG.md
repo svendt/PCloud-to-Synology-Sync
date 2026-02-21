@@ -10,6 +10,7 @@ and this project adheres to **Semantic Versioning**.
 ## [1.9] — 2026-02-21
 
 ### Fixed
+- `IONICE_CMD` converted from a plain string to a bash array — safe with `set -u` when empty, and handles paths with spaces correctly. Invocation updated to `"${IONICE_CMD[@]+"${IONICE_CMD[@]}"}" rclone ...`.
 - `--log-file-append` flag removed from rclone copy arguments — this flag was introduced in rclone v1.74 and caused an `unknown flag` error on older (but still current) versions. Appending to an existing log file is rclone's default behaviour, making the flag redundant on all versions.
 - `resource_snapshot()` function body disabled (no-op `:`). `top -b`, `vmstat 1 2`, and `iostat` all hang indefinitely on Synology DSM due to incompatible busybox flag behaviour. The function remains in the script with commented instructions for re-enabling on platforms where these tools work correctly.
 
@@ -56,13 +57,13 @@ and this project adheres to **Semantic Versioning**.
 ### Added
 - Self-test mode (`SELF_TEST=1`) for safe dry-run validation without data transfer.
 - Incident-ready structured logging (`level=... run_id=... script_version=... msg="..."`).
-- NAS resource snapshots (CPU, memory, IO) using `top`, `vmstat`, `iostat` when available.
+- NAS resource snapshots (CPU, memory, IO) using `top`, `vmstat`, `iostat` when available. *(disabled in v1.9 — these tools hang on Synology DSM busybox; see v1.9 entry)*
 - Atomic lockfile creation using `noclobber` to prevent race conditions.
 - Health score clamping (0–100).
 - Run ID (`RUN_ID`) for log correlation across meta and rclone log files.
 
 ### Changed
-- rclone logs now use `--log-file-append` to preserve all retry attempts in a single file.
+- rclone logs now use `--log-file-append` to preserve all retry attempts in a single file. *(flag removed in v1.9 — appending to an existing log file is rclone's default behaviour)*
 - Disk space detection uses `NR==2` for locale-safe `df` parsing.
 - Variable names, comments, and documentation in English throughout.
 - Log retention extended to include diff and missing-on-dst files.

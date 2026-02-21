@@ -59,7 +59,7 @@ SELF_TEST=1 ./pcloud_to_synology_sync_svdt.sh
 | Health score | Per-run 0–100 score summarising API latency, check results, and diff state. |
 | 30-run statistics | Rolling history with a formatted table printed at the end of every run. |
 | Structured logging | All log lines use `key=value` format for easy grep and log aggregation. |
-| NAS resource snapshots | CPU/memory/IO captured pre- and post-backup using `top`, `vmstat`, `iostat`. |
+| NAS resource snapshots | Disabled on Synology DSM (`top`, `vmstat`, `iostat` hang on busybox). Function preserved in code for re-enabling on other platforms. |
 | Self-test / dry-run | `SELF_TEST=1` runs all checks but passes `--dry-run` to rclone — no data moved. |
 | Log retention | Keeps log files for the last N runs (by count, not by age in days). |
 | ionice support | Optionally lowers I/O priority so the backup does not impact NAS responsiveness. |
@@ -76,7 +76,7 @@ Start
   ├─ Acquire atomic PID lockfile
   ├─ Check rclone in PATH
   ├─ Check NAS free space >= MIN_FREE_MB
-  ├─ Capture pre-backup NAS resource snapshot
+  ├─ NAS resource snapshot (no-op on DSM — disabled for busybox compatibility)
   ├─ Probe pCloud API + measure latency
   │
   ├─ rclone copy (up to MAX_RETRIES attempts)
@@ -93,7 +93,7 @@ Start
   ├─ Append stats entry to 30-run history
   ├─ Update last-success timestamp
   ├─ Prune old log files (keep last LOG_RETENTION_RUNS)
-  ├─ Capture post-backup NAS resource snapshot
+  ├─ NAS resource snapshot post-backup (no-op on DSM — disabled for busybox compatibility)
   └─ Print 30-run statistics table
 ```
 
@@ -146,13 +146,13 @@ When prompted `Use auto config?`, choose `y`. Your browser will open and you wil
 ### Step 5 — Copy the config to your Synology NAS
 
 ```bash
-scp ~/.config/rclone/rclone.conf admin@YOUR_NAS_IP:/var/services/homes/administrator/.rclone.conf
+scp ~/.config/rclone/rclone.conf YOUR_NAS_USER@YOUR_NAS_IP:/var/services/homes/YOUR_USERNAME/.rclone.conf
 ```
 
 ### Step 6 — Set correct permissions on the NAS
 
 ```bash
-chmod 600 /var/services/homes/administrator/.rclone.conf
+chmod 600 /var/services/homes/YOUR_USERNAME/.rclone.conf
 ```
 
 ### Step 7 — Test the connection from the NAS
@@ -174,13 +174,13 @@ sudo bash -c 'echo $HOME'
 
 If your rclone config is stored under a regular user (e.g. `administrator`), copy it to root's home:
 ```bash
-cp /var/services/homes/administrator/.rclone.conf /root/.rclone.conf
+cp /var/services/homes/YOUR_USERNAME/.rclone.conf /root/.rclone.conf
 chmod 600 /root/.rclone.conf
 ```
 
 Alternatively, hardcode the path explicitly in the `CONFIG` section of the script:
 ```bash
-export RCLONE_CONFIG="/var/services/homes/administrator/.rclone.conf"
+export RCLONE_CONFIG="/var/services/homes/YOUR_USERNAME/.rclone.conf"
 ```
 
 You can verify the config is found correctly by running the self-test:

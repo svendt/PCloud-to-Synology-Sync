@@ -42,11 +42,12 @@
 #   Version bump in main script          Update MAIN_SCRIPT_VERSION below
 #
 # VERSION HISTORY:
-#   1.0.0 — initial release (10 sections, 40+ tests)
+#   1.0.1 — updated MAIN_SCRIPT_VERSION to 1.9; corrected section/test count in header
+#   1.0.0 — initial release (12 sections, 61 tests)
 # =============================================================================
 
-TEST_SUITE_VERSION="1.0.0"
-MAIN_SCRIPT_VERSION="1.8"   # version of pcloud_to_synology_sync_svdt.sh this suite targets
+TEST_SUITE_VERSION="1.0.1"
+MAIN_SCRIPT_VERSION="1.9"   # version of pcloud_to_synology_sync_svdt.sh this suite targets
 
 SCRIPT_UNDER_TEST="./pcloud_to_synology_sync_svdt.sh"
 
@@ -137,7 +138,7 @@ section "2. Structured log format"
 
 LOG_TMP="$TESTDIR/test_meta.log"
 RUN_ID_TEST="20260101-120000-99999"
-SCRIPT_VERSION_TEST="1.8"
+SCRIPT_VERSION_TEST="1.9"
 
 log_test() {
     local level="$1"; shift
